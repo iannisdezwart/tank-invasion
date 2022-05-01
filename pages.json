@@ -1,0 +1,20 @@
+{
+  "tables": {
+    "compiled_pages": {
+      "cols": [
+        {
+          "name": "path",
+          "dataType": "String",
+          "constraints": [
+            "primaryKey"
+          ]
+        }
+      ],
+      "rows": [
+        [
+          "/index.html"
+        ]
+      ]
+    }
+  }
+}

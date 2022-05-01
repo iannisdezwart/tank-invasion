@@ -1,0 +1,15 @@
+{
+	"name": "tank-invasion",
+	"version": "0.0.1",
+	"description": "",
+	"main": "compiler.js",
+	"scripts": {
+		"postinstall": "node compiler.js"
+	},
+	"keywords": [],
+	"author": "Iannis de Zwart",
+	"license": "ISC",
+	"dependencies": {
+		"page-compiler": "^0.1.7"
+	}
+}
