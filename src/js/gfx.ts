@@ -50,6 +50,29 @@ interface StrokeRectOptions
 	yBase?: number
 }
 
+interface FillPolygonOptions
+{
+	x: number
+	y: number
+	radius: number
+	colour: string
+	angle?: number
+	xBase?: number
+	yBase?: number
+}
+
+interface StrokePolygonOptions
+{
+	x: number
+	y: number
+	radius: number
+	colour: string
+	lineWidth: number
+	angle?: number
+	xBase?: number
+	yBase?: number
+}
+
 class GFX
 {
 	static canvas: HTMLCanvasElement
@@ -66,8 +89,8 @@ class GFX
 
 	private static handleResize()
 	{
-		GFX.canvas.width = innerWidth
-		GFX.canvas.height = innerHeight
+		GFX.canvas.width = innerWidth * devicePixelRatio
+		GFX.canvas.height = innerHeight * devicePixelRatio
 	}
 
 	/**
@@ -167,5 +190,84 @@ class GFX
 		GFX.ctx.strokeRect(GFX.trL(xBase), GFX.trL(yBase),
 			GFX.trL(width), GFX.trL(height))
 		GFX.ctx.restore()
+	}
+
+	static fillPolygon(size: number, options: FillPolygonOptions)
+	{
+		const { x, y, radius, colour, angle, xBase, yBase } = {
+			...{ angle: 0, xBase: 0, yBase: 0 },
+			...options
+		}
+
+		GFX.ctx.save()
+		GFX.ctx.translate(GFX.trX(x), GFX.trY(y))
+		GFX.ctx.rotate(angle - Math.PI / 2)
+		GFX.ctx.fillStyle = colour
+
+		const angleStep = 2 * Math.PI / size
+
+		GFX.ctx.beginPath()
+		GFX.ctx.moveTo(GFX.trL(xBase + radius), GFX.trL(yBase))
+
+		for (let i = 0; i < size; i++)
+		{
+			GFX.ctx.lineTo(
+				GFX.trL(xBase + radius * Math.cos(i * angleStep)),
+				GFX.trL(yBase + radius * Math.sin(i * angleStep)))
+		}
+
+		GFX.ctx.closePath()
+		GFX.ctx.fill()
+		GFX.ctx.restore()
+	}
+
+	static strokePolygon(size: number, options: StrokePolygonOptions)
+	{
+		const { x, y, radius, colour, angle, xBase, yBase, lineWidth } = {
+			...{ angle: 0, xBase: 0, yBase: 0 },
+			...options
+		}
+
+		GFX.ctx.save()
+		GFX.ctx.translate(GFX.trX(x), GFX.trY(y))
+		GFX.ctx.rotate(angle - Math.PI / 2)
+		GFX.ctx.strokeStyle = colour
+		GFX.ctx.lineWidth = GFX.trL(lineWidth)
+
+		const angleStep = 2 * Math.PI / size
+
+		GFX.ctx.beginPath()
+		GFX.ctx.moveTo(GFX.trL(xBase + radius), GFX.trL(yBase))
+
+		for (let i = 0; i < size; i++)
+		{
+			GFX.ctx.lineTo(
+				GFX.trL(xBase + radius * Math.cos(i * angleStep)),
+				GFX.trL(yBase + radius * Math.sin(i * angleStep)))
+		}
+
+		GFX.ctx.closePath()
+		GFX.ctx.stroke()
+		GFX.ctx.restore()
+	}
+
+	static fillTriangle(options: FillPolygonOptions)
+	{
+		GFX.fillPolygon(3, options)
+	}
+
+	static strokeTriangle(options: StrokePolygonOptions)
+	{
+		GFX.strokePolygon(3, options)
+	}
+
+	static fillPentagon(options: FillPolygonOptions)
+	{
+		GFX.fillPolygon(5, options)
+	}
+
+	static strokePentagon(options: StrokePolygonOptions)
+	{
+		GFX.strokePolygon(5, options)
 	}
 }
