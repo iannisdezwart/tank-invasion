@@ -7,8 +7,8 @@ const tankVel = (owner: TankOwner, type: TankType) =>
 
 	switch (type)
 	{
-		case TankType.NORMAL:
-			return 0.005 * multiplier
+	case TankType.NORMAL:
+		return 0.005 * multiplier
 	}
 }
 
@@ -16,8 +16,8 @@ const tankSize = (type: TankType) =>
 {
 	switch (type)
 	{
-		case TankType.NORMAL:
-			return 0.08
+	case TankType.NORMAL:
+		return 0.08
 	}
 }
 
@@ -25,8 +25,8 @@ const tankTurretWidth = (type: TankType) =>
 {
 	switch (type)
 	{
-		case TankType.NORMAL:
-			return 0.08
+	case TankType.NORMAL:
+		return 0.08
 	}
 }
 
@@ -34,8 +34,8 @@ const tankTurretHeight = (type: TankType) =>
 {
 	switch (type)
 	{
-		case TankType.NORMAL:
-			return 0.05
+	case TankType.NORMAL:
+		return 0.05
 	}
 }
 
@@ -43,11 +43,11 @@ const tankColour = (owner: TankOwner) =>
 {
 	switch (owner)
 	{
-		case TankOwner.PLAYER:
-			return '#33aaff'
+	case TankOwner.PLAYER:
+		return '#33aaff'
 
-		case TankOwner.ENEMY:
-			return '#cc5533'
+	case TankOwner.ENEMY:
+		return '#cc5533'
 	}
 }
 
@@ -55,11 +55,11 @@ const tankOutlineColour = (owner: TankOwner) =>
 {
 	switch (owner)
 	{
-		case TankOwner.PLAYER:
-			return '#0077cc'
+	case TankOwner.PLAYER:
+		return '#0077cc'
 
-		case TankOwner.ENEMY:
-			return '#aa1700'
+	case TankOwner.ENEMY:
+		return '#aa1700'
 	}
 }
 
@@ -67,8 +67,8 @@ const tankHealth = (type: TankType) =>
 {
 	switch (type)
 	{
-		case TankType.NORMAL:
-			return 100
+	case TankType.NORMAL:
+		return 100
 	}
 }
 
@@ -76,8 +76,8 @@ const tankShootDelay = (type: TankType) =>
 {
 	switch (type)
 	{
-		case TankType.NORMAL:
-			return 500
+	case TankType.NORMAL:
+		return 500
 	}
 }
 
@@ -306,9 +306,7 @@ class Tank
 		const width = this.size + this.turretWidth
 		const x = this.x + width * Math.cos(this.angle)
 		const y = this.y + width * Math.sin(this.angle)
-		const owner = this instanceof Player
-			? BulletOwner.PLAYER : BulletOwner.ENEMY
-		Bullet.spawn(x, y, this.angle, owner, BulletType.NORMAL)
+		Bullet.spawn(x, y, this.angle, this, BulletType.NORMAL)
 	}
 
 	touches(x: number, y: number)

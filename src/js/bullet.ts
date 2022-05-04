@@ -1,45 +1,40 @@
-enum BulletOwner { PLAYER, ENEMY }
 enum BulletType { NORMAL }
 
 const bulletVel = (type: BulletType) =>
 {
 	switch (type)
 	{
-		case BulletType.NORMAL:
-			return 0.0075
+	case BulletType.NORMAL:
+		return 0.0075
 	}
 }
 
-const bulletColour = (owner: BulletOwner) =>
+const bulletColour = (owner: Tank) =>
 {
-	switch (owner)
+	if (owner instanceof Player)
 	{
-		case BulletOwner.PLAYER:
-			return '#33aaff'
-
-		case BulletOwner.ENEMY:
-			return '#ff5533'
+		return '#33aaff'
 	}
+
+	return '#ff5533'
 }
 
-const bulletOutlineColour = (owner: BulletOwner) =>
+const bulletOutlineColour = (owner: Tank) =>
 {
-	switch (owner)
+	if (owner instanceof Player)
 	{
-		case BulletOwner.PLAYER:
-			return '#0077cc'
-
-		case BulletOwner.ENEMY:
-			return '#cc1700'
+		return '#0077cc'
 	}
+
+	return '#cc1700'
 }
 
 const bulletSize = (type: BulletType) =>
 {
 	switch (type)
 	{
-		case BulletType.NORMAL:
-			return 0.025
+	case BulletType.NORMAL:
+		return 0.025
 	}
 }
 
@@ -47,13 +42,14 @@ const bulletDamage = (type: BulletType) =>
 {
 	switch (type)
 	{
-		case BulletType.NORMAL:
-			return 10
+	case BulletType.NORMAL:
+		return 10
 	}
 }
 
 class Bullet
 {
+	owner: Tank
 	x: number
 	y: number
 	vel: number
@@ -66,8 +62,9 @@ class Bullet
 	static bullets: Bullet[] = []
 
 	constructor(x: number, y: number, angle: number,
-		owner: BulletOwner, type: BulletType)
+		owner: Tank, type: BulletType)
 	{
+		this.owner = owner
 		this.x = x
 		this.y = y
 		this.vel = bulletVel(type)
@@ -87,6 +84,17 @@ class Bullet
 			if (tank.touches(this.x, this.y))
 			{
 				tank.harm(this.damage)
+				this.despawn()
+			}
+		}
+
+		// Go through each score block and check for collision.
+
+		for (const scoreBlock of ScoreBlock.scoreBlocks)
+		{
+			if (scoreBlock.touches(this.x, this.y))
+			{
+				scoreBlock.hit(this)
 				this.despawn()
 			}
 		}
@@ -148,7 +156,7 @@ class Bullet
 	}
 
 	static spawn(x: number, y: number, angle: number,
-		owner: BulletOwner, type: BulletType)
+		owner: Tank, type: BulletType)
 	{
 		const bullet = new Bullet(x, y, angle, owner, type)
 		Bullet.bullets.push(bullet)
