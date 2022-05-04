@@ -5,6 +5,7 @@ class Player extends Tank
 	goesUp: number
 	goesDown: number
 	isShooting: boolean
+	score: number
 
 	static instance: Player
 
@@ -18,6 +19,7 @@ class Player extends Tank
 		this.goesUp = 0
 		this.goesDown = 0
 		this.isShooting = false
+		this.score = 0
 		this.maxVel = 0.005
 
 		addEventListener('keydown', this.handleKeyDown.bind(this))
@@ -31,25 +33,25 @@ class Player extends Tank
 	{
 		switch (e.code)
 		{
-			case 'KeyA':
-				this.goesLeft = 1
-				break
+		case 'KeyA':
+			this.goesLeft = 1
+			break
 
-			case 'KeyD':
-				this.goesRight = 1
-				break
+		case 'KeyD':
+			this.goesRight = 1
+			break
 
-			case 'KeyW':
-				this.goesUp = 1
-				break
+		case 'KeyW':
+			this.goesUp = 1
+			break
 
-			case 'KeyS':
-				this.goesDown = 1
-				break
+		case 'KeyS':
+			this.goesDown = 1
+			break
 
-			case 'Space':
-				this.isShooting = true
-				break
+		case 'Space':
+			this.isShooting = true
+			break
 		}
 	}
 
@@ -57,25 +59,25 @@ class Player extends Tank
 	{
 		switch (e.code)
 		{
-			case 'KeyA':
-				this.goesLeft = 0
-				break
+		case 'KeyA':
+			this.goesLeft = 0
+			break
 
-			case 'KeyD':
-				this.goesRight = 0
-				break
+		case 'KeyD':
+			this.goesRight = 0
+			break
 
-			case 'KeyW':
-				this.goesUp = 0
-				break
+		case 'KeyW':
+			this.goesUp = 0
+			break
 
-			case 'KeyS':
-				this.goesDown = 0
-				break
+		case 'KeyS':
+			this.goesDown = 0
+			break
 
-			case 'Space':
-				this.isShooting = false
-				break
+		case 'Space':
+			this.isShooting = false
+			break
 		}
 	}
 
@@ -102,6 +104,9 @@ class Player extends Tank
 
 	eachTick()
 	{
+		document.querySelector('#score-value').innerHTML
+			= 'Score: ' + this.score.toString()
+
 		if (this.isShooting
 			&& Date.now() - this.lastShot > this.shootDelay)
 		{
