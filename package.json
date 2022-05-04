@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "compiler.js",
 	"scripts": {
-		"postinstall": "node compiler.js"
+		"postinstall": "tsc && node compiler.js"
 	},
 	"keywords": [],
 	"author": "Iannis de Zwart",
