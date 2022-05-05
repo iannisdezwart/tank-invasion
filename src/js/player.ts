@@ -104,8 +104,7 @@ class Player extends Tank
 
 	eachTick()
 	{
-		document.querySelector('#score-value').innerHTML
-			= 'Score: ' + this.score.toString()
+		Store.update()
 
 		if (this.isShooting
 			&& Date.now() - this.lastShot > this.shootDelay)
@@ -138,5 +137,20 @@ class Player extends Tank
 		setTimeout(() => {
 			new Player()
 		}, 3000)
+	}
+
+	buyBulletDamage()
+	{
+		this.bulletDamageLevel++
+	}
+
+	buyBulletPenetration()
+	{
+		this.bulletPenetrationLevel++
+	}
+
+	buyBulletSpeed()
+	{
+		this.bulletSpeedLevel++
 	}
 }

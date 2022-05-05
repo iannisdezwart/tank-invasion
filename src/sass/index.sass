@@ -14,10 +14,10 @@ canvas
 	width: 100%
 	z-index: 1
 
-	#score
+	#money
 		padding: .5rem
 
-		#score-value
+		#money-value
 			font-family: monospace
 			font-size: 1.5em
 			font-weight: bold
@@ -27,10 +27,16 @@ canvas
 
 		.item
 			opacity: 0.8
+			padding: .5rem
+			margin: .5rem
+			background-color: #ccc
+			border-radius: .25rem
+			backdrop-filter: blur(5px)
 
-			display: flex
-			align-items: center
-			justify-content: center
+			.first-row, .second-row
+				display: flex
+				align-items: center
+				justify-content: center
 
 			.key
 				width: 1rem
@@ -41,23 +47,35 @@ canvas
 				justify-content: center
 
 				margin-right: .5rem
+				border-radius: .25rem
 
-			padding: .5rem
-			margin: .5rem
-			background-color: #fff
-			border: 2px solid darken(#fff, 20%)
-			border-radius: .25rem
-
-			&#instant-health
+			&#max-health
 				.key
 					background-color: #e1388c
 					border: 2px solid darken(#e1388c, 20%)
-					border-radius: .25rem
+
+			&#bullet-damage
+				.key
+					background-color: #8f29cf
+					border: 2px solid darken(#8f29cf, 20%)
+
+			&#bullet-penetration
+				.key
+					background-color: #cf8f29
+					border: 2px solid darken(#cf8f29, 20%)
+
+			&#bullet-speed
+				.key
+					background-color: #29cf8f
+					border: 2px solid darken(#29cf8f, 20%)
 
 			&.greyed-out
 				background-color: #aaa
-				border-color: darken(#aaa, 20%)
 
 				.key
 					background-color: #777 !important
 					border-color: darken(#777, 20%) !important
+
+			.price
+				font-style: italic
+				margin-right: .5rem
