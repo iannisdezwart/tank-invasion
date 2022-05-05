@@ -86,6 +86,7 @@ class ScoreBlock
 	maxHealth: number
 	type: ScoreBlockType
 	angle: number
+	popped: boolean
 
 	static scoreBlocks: ScoreBlock[] = []
 
@@ -100,6 +101,7 @@ class ScoreBlock
 		this.health = this.maxHealth
 		this.type = type
 		this.angle = Math.random() * Math.PI * 2
+		this.popped = false
 
 		ScoreBlock.scoreBlocks.push(this)
 	}
@@ -115,6 +117,50 @@ class ScoreBlock
 		{
 			scoreBlock.render()
 		}
+	}
+
+	renderHealthBar()
+	{
+		if (this.health == this.maxHealth)
+		{
+			return
+		}
+
+		// Health bar fill.
+
+		let healthBarFillColour: string
+
+		if (this.health > this.maxHealth * 0.67)
+		{
+			healthBarFillColour = '#2f0'
+		}
+		else if (this.health > this.maxHealth * 0.33)
+		{
+			healthBarFillColour = '#f70'
+		}
+		else
+		{
+			healthBarFillColour = '#f00'
+		}
+
+		GFX.fillRect({
+			x: this.x - HEALTH_BAR_WIDTH / 2,
+			y: this.y + this.radius + HEALTH_BAR_HEIGHT * 2,
+			width: HEALTH_BAR_WIDTH * this.health / this.maxHealth,
+			height: HEALTH_BAR_HEIGHT,
+			colour: healthBarFillColour
+		})
+
+		// Health bar outline.
+
+		GFX.strokeRect({
+			x: this.x - HEALTH_BAR_WIDTH / 2,
+			y: this.y + this.radius + HEALTH_BAR_HEIGHT * 2,
+			width: HEALTH_BAR_WIDTH,
+			height: HEALTH_BAR_HEIGHT,
+			colour: '#333',
+			lineWidth: 0.01
+		})
 	}
 
 	render()
@@ -159,41 +205,7 @@ class ScoreBlock
 			angle: this.angle
 		})
 
-		// Health bar fill.
-
-		let healthBarFillColour: string
-
-		if (this.health > this.maxHealth * 0.67)
-		{
-			healthBarFillColour = '#2f0'
-		}
-		else if (this.health > this.maxHealth * 0.33)
-		{
-			healthBarFillColour = '#f70'
-		}
-		else
-		{
-			healthBarFillColour = '#f00'
-		}
-
-		GFX.fillRect({
-			x: this.x - HEALTH_BAR_WIDTH / 2,
-			y: this.y + this.radius + HEALTH_BAR_HEIGHT * 2,
-			width: HEALTH_BAR_WIDTH * this.health / this.maxHealth,
-			height: HEALTH_BAR_HEIGHT,
-			colour: healthBarFillColour
-		})
-
-		// Health bar outline.
-
-		GFX.strokeRect({
-			x: this.x - HEALTH_BAR_WIDTH / 2,
-			y: this.y + this.radius + HEALTH_BAR_HEIGHT * 2,
-			width: HEALTH_BAR_WIDTH,
-			height: HEALTH_BAR_HEIGHT,
-			colour: '#333',
-			lineWidth: 0.01
-		})
+		this.renderHealthBar()
 	}
 
 	touches(x: number, y: number)
@@ -203,6 +215,13 @@ class ScoreBlock
 
 	pop(player: Player)
 	{
+		if (this.popped)
+		{
+			return
+		}
+
+		this.popped = true
+
 		// Award the player points.
 
 		player.score += scoreBlockScore(this.type)
@@ -234,6 +253,34 @@ class ScoreBlock
 		{
 			this.pop(bullet.owner)
 		}
+
+		// Handle bullet penetration.
+
+		if (this.popped)
+		{
+			return
+		}
+
+		bullet.penetration--
+
+		if (bullet.penetration == 0)
+		{
+			bullet.despawn()
+			return
+		}
+
+		requestAnimationFrame(() =>
+		{
+			// Check if the bullet still touches the score
+			// block.
+
+			if (this.touches(bullet.x, bullet.y))
+			{
+				// Hit the score block again.
+
+				this.hit(bullet)
+			}
+		})
 	}
 
 	static spawn()

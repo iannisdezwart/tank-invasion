@@ -1,3 +1,10 @@
+interface BulletMultipliers
+{
+	damage: number
+	penetration: number
+	speed: number
+}
+
 enum BulletType { NORMAL }
 
 const bulletVel = (type: BulletType) =>
@@ -43,7 +50,16 @@ const bulletDamage = (type: BulletType) =>
 	switch (type)
 	{
 	case BulletType.NORMAL:
-		return 10
+		return 5
+	}
+}
+
+const bulletPenetration = (type: BulletType) =>
+{
+	switch (type)
+	{
+	case BulletType.NORMAL:
+		return 3
 	}
 }
 
@@ -58,21 +74,25 @@ class Bullet
 	outlineColour: string
 	size: number
 	damage: number
+	penetration: number
+	hitObjects: Set<Object>
 
 	static bullets: Bullet[] = []
 
 	constructor(x: number, y: number, angle: number,
-		owner: Tank, type: BulletType)
+		owner: Tank, type: BulletType, multipliers: BulletMultipliers)
 	{
 		this.owner = owner
 		this.x = x
 		this.y = y
-		this.vel = bulletVel(type)
+		this.vel = bulletVel(type) * multipliers.speed
 		this.angle = angle
 		this.colour = bulletColour(owner)
 		this.outlineColour = bulletOutlineColour(owner)
 		this.size = bulletSize(type)
-		this.damage = bulletDamage(type)
+		this.damage = bulletDamage(type) * multipliers.damage
+		this.penetration = bulletPenetration(type) * multipliers.penetration
+		this.hitObjects = new Set()
 	}
 
 	collision()
@@ -81,10 +101,11 @@ class Bullet
 
 		for (const tank of Tank.tanks)
 		{
-			if (tank.touches(this.x, this.y))
+			if (tank.touches(this.x, this.y)
+				&& !this.hitObjects.has(tank))
 			{
-				tank.harm(this.damage)
-				this.despawn()
+				this.hitObjects.add(tank)
+				tank.hit(this)
 			}
 		}
 
@@ -92,10 +113,11 @@ class Bullet
 
 		for (const scoreBlock of ScoreBlock.scoreBlocks)
 		{
-			if (scoreBlock.touches(this.x, this.y))
+			if (scoreBlock.touches(this.x, this.y)
+				&& !this.hitObjects.has(scoreBlock))
 			{
+				this.hitObjects.add(scoreBlock)
 				scoreBlock.hit(this)
-				this.despawn()
 			}
 		}
 	}
@@ -156,9 +178,9 @@ class Bullet
 	}
 
 	static spawn(x: number, y: number, angle: number,
-		owner: Tank, type: BulletType)
+		owner: Tank, type: BulletType, multipliers: BulletMultipliers)
 	{
-		const bullet = new Bullet(x, y, angle, owner, type)
+		const bullet = new Bullet(x, y, angle, owner, type, multipliers)
 		Bullet.bullets.push(bullet)
 	}
 }

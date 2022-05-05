@@ -101,6 +101,11 @@ class Tank
 	maxHealth: number
 	shootDelay: number
 	lastShot: number
+	killed: boolean
+
+	bulletDamageLevel: number
+	bulletPenetrationLevel: number
+	bulletSpeedLevel: number
 
 	static tanks: Tank[] = []
 	static ACCELERATION = 0.0002
@@ -123,6 +128,11 @@ class Tank
 		this.maxHealth = this.health
 		this.shootDelay = tankShootDelay(type)
 		this.lastShot = 0
+		this.killed = false
+
+		this.bulletDamageLevel = 1
+		this.bulletPenetrationLevel = 1
+		this.bulletSpeedLevel = 1
 
 		Tank.tanks.push(this)
 	}
@@ -203,6 +213,50 @@ class Tank
 		this.angle = this.getAngle()
 	}
 
+	renderHealthBar()
+	{
+		if (this.health == this.maxHealth)
+		{
+			return
+		}
+
+		// Health bar fill.
+
+		let healthBarFillColour: string
+
+		if (this.health > this.maxHealth * 0.67)
+		{
+			healthBarFillColour = '#2f0'
+		}
+		else if (this.health > this.maxHealth * 0.33)
+		{
+			healthBarFillColour = '#f70'
+		}
+		else
+		{
+			healthBarFillColour = '#f00'
+		}
+
+		GFX.fillRect({
+			x: this.x - HEALTH_BAR_WIDTH / 2,
+			y: this.y + this.size + HEALTH_BAR_HEIGHT * 2,
+			width: HEALTH_BAR_WIDTH * this.health / this.maxHealth,
+			height: HEALTH_BAR_HEIGHT,
+			colour: healthBarFillColour
+		})
+
+		// Health bar outline.
+
+		GFX.strokeRect({
+			x: this.x - HEALTH_BAR_WIDTH / 2,
+			y: this.y + this.size + HEALTH_BAR_HEIGHT * 2,
+			width: HEALTH_BAR_WIDTH,
+			height: HEALTH_BAR_HEIGHT,
+			colour: '#333',
+			lineWidth: 0.01
+		})
+	}
+
 	render()
 	{
 		this.move()
@@ -254,43 +308,7 @@ class Tank
 			yBase: -this.turretHeight / 2
 		})
 
-		// Health bar fill.
-
-		let healthBarFillColour: string
-
-		if (this.health > this.maxHealth * 0.67)
-		{
-			healthBarFillColour = '#2f0'
-		}
-		else if (this.health > this.maxHealth * 0.33)
-		{
-			healthBarFillColour = '#f70'
-		}
-		else
-		{
-			healthBarFillColour = '#f00'
-		}
-
-		GFX.fillRect({
-			x: this.x - HEALTH_BAR_WIDTH / 2,
-			y: this.y + this.size + HEALTH_BAR_HEIGHT * 2,
-			width: HEALTH_BAR_WIDTH * this.health / this.maxHealth,
-			height: HEALTH_BAR_HEIGHT,
-			colour: healthBarFillColour
-		})
-
-		// Health bar outline.
-
-		GFX.strokeRect({
-			x: this.x - HEALTH_BAR_WIDTH / 2,
-			y: this.y + this.size + HEALTH_BAR_HEIGHT * 2,
-			width: HEALTH_BAR_WIDTH,
-			height: HEALTH_BAR_HEIGHT,
-			colour: '#333',
-			lineWidth: 0.01
-		})
-
-
+		this.renderHealthBar()
 	}
 
 	static renderAll()
@@ -306,7 +324,12 @@ class Tank
 		const width = this.size + this.turretWidth
 		const x = this.x + width * Math.cos(this.angle)
 		const y = this.y + width * Math.sin(this.angle)
-		Bullet.spawn(x, y, this.angle, this, BulletType.NORMAL)
+
+		Bullet.spawn(x, y, this.angle, this, BulletType.NORMAL, {
+			damage: this.bulletDamageLevel,
+			penetration: this.bulletPenetrationLevel,
+			speed: this.bulletSpeedLevel
+		})
 	}
 
 	touches(x: number, y: number)
@@ -317,14 +340,45 @@ class Tank
 		}
 	}
 
-	harm(amount: number)
+	hit(bullet: Bullet)
 	{
-		this.health -= amount
+		// Hit the tank.
+
+		this.health -= bullet.damage
+
+		// If the tank is dead, kill it.
 
 		if (this.health <= 0)
 		{
 			this.kill()
 		}
+
+		// Handle bullet penetration.
+
+		if (this.killed)
+		{
+			return
+		}
+
+		bullet.penetration--
+
+		if (bullet.penetration == 0)
+		{
+			bullet.despawn()
+			return
+		}
+
+		requestAnimationFrame(() =>
+		{
+			// Check if the bullet still touches the tank.
+
+			if (this.touches(bullet.x, bullet.y))
+			{
+				// Hit the tank again.
+
+				this.hit(bullet)
+			}
+		})
 	}
 
 	/**
@@ -335,6 +389,13 @@ class Tank
 
 	kill()
 	{
+		if (this.killed)
+		{
+			return
+		}
+
+		this.killed = true
+
 		// Remove the tank from the list of tanks.
 
 		const i = Tank.tanks.indexOf(this)
